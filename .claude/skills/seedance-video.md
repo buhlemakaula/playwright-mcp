@@ -70,6 +70,19 @@ downgrading.
    environment's proxy may refuse. If the fetch fails, record the URL in the
    manifest instead of silently skipping the row, and tell the user.
 
+> **Sandbox limitation — verified.** In a restricted environment the MCP *control
+> plane* works (workspaces, model catalog, `get_cost`, requesting a presigned URL)
+> because it routes through Claude's infrastructure, but the *data plane* does not:
+> a presigned `PUT` to `upload.higgsfield.ai` fails with `CONNECT tunnel failed,
+> response 403`, exactly like any other blocked host. So `media_upload` returns a
+> URL you cannot actually write to, and `media_upload_widget` needs an Apps
+> UI-capable client (Claude Code is not one — it returns a `fallback` notice).
+> With no reference upload path there is no `omni_reference`, so anything
+> depending on a reference image cannot run locally. Either allowlist
+> `upload.higgsfield.ai`, use `media_import_url` with a publicly reachable URL
+> (fetched server-side, so the local proxy is bypassed), or run the generation in
+> the Higgsfield web UI.
+
 7. **Log to `manifest.csv`** — append a row, writing the header if the file is new:
 
    ```
